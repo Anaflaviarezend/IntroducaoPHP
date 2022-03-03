@@ -6,7 +6,11 @@ session_start();
 // Verificar se o usuário não está logado:
 if (!isset($_SESSION['infosusuario'])) {
     // Redirecionar de volta à tela de login:
-    header('Location: ../index.php');
+    http_response_code(200);
+    header('Content-Type: application/json; charset=utf-8');
+    $status["mensagem"] = "Cadastro realizado com sucesso!";
+    $status["status"] = 1;
+    echo json_encode($status);
 }
 
 // Verificar se a pessoa está logada:
@@ -21,8 +25,13 @@ date_default_timezone_set('America/Sao_Paulo');
 if ($_POST['codBarras'] != "" && $_POST['nome'] != "" && strlen($_POST['codBarras']) == 5) {
     $codbarras = $_POST['codBarras'];
     $nome = $_POST['nome'];
-} else {
-    header("Location: index.php?msg=3");
+} else { 
+     http_response_code(200);
+    header('Content-Type: application/json; charset=utf-8');
+    $status["mensagem"] = "dados imcompletos!";
+    $status["status"] = 0;
+    echo json_encode($status);
+   
     exit();
 }
 
@@ -31,7 +40,11 @@ if ($_POST['codBarras'] != "" && $_POST['nome'] != "" && strlen($_POST['codBarra
 if (intval($_POST['preco']) != 0) {
     $preco = $_POST['preco'];
 } else {
-    header("Location: index.php?msg=3");
+    http_response_code(200);
+    header('Content-Type: application/json; charset=utf-8');
+    $status["mensagem"] = "valor invalido!";
+    $status["status"] = 0;
+    echo json_encode($status);
     exit();
 }
 
@@ -39,7 +52,11 @@ if (intval($_POST['preco']) != 0) {
 if (floatval($_POST['qtdEstoque']) != 0) {
     $qtdEstoque = $_POST['qtdEstoque'];
 } else {
-    header("Location: index.php?msg=3");
+    http_response_code(200);
+    header('Content-Type: application/json; charset=utf-8');
+    $status["mensagem"] = "valor invalido!";
+    $status["status"] = 0;
+    echo json_encode($status);
     exit();
 }
 
@@ -58,14 +75,26 @@ try {
     $sql = "INSERT INTO produtos (codbarras, nome, preco, estoque, idCategoria, idRespCadastro, foto) VALUES (?, ?, ?, ?, ?, ?, ?)";
     $q = $pdo->prepare($sql);
     $q->execute(array($codbarras, $nome, $preco, $qtdEstoque, $categoria, $idResp, $foto));
-    
+    http_response_code(200);
+    header('Content-Type: application/json; charset=utf-8');
+    $status["mensagem"] = "Cadastro realizado com sucesso!";
+    $status["status"] = 1;
+    echo json_encode($status);
 } catch (PDOException $e) {
     Banco::desconectar();
     if ($e->getCode() == 23000) {
-        header("Location: index.php?msg=4");
+        http_response_code(200);
+        header('Content-Type: application/json; charset=utf-8');
+        $status["mensagem"] = "codigo ja cadastrado!";
+        $status["status"] = 0;
+        echo json_encode($status);
         exit();
     } else {
-        header("Location: index.php?msg=3");
+        http_response_code(200);
+        header('Content-Type: application/json; charset=utf-8');
+        $status["mensagem"] = "erro desconhecido!";
+        $status["status"] = 0;
+        echo json_encode($status);
         exit();
     }
 }
@@ -73,5 +102,3 @@ try {
 Banco::desconectar();
 
 // Devolver o usuário para tela de administração:
-header("Location: index.php?msg=1");
-?>

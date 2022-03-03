@@ -5,10 +5,14 @@ session_start();
 // Verificar se o usuário não está logado:
 if (!isset($_SESSION['infosusuario'])) {
     // Redirecionar de volta à tela de login:
-    header('Location: ../index.php');
+    http_response_code(200);
+    header('Content-Type: application/json; charset=utf-8');
+    $status["mensagem"] = "Cadastro realizado com sucesso!";
+    $status["status"] = 1;
+    echo json_encode($status);
 }
 // Puxar o arquivo de conexão com o banco de dados:
-include('../db/banco.php');
+include('db/banco.php');
 
 $pdo = Banco::conectar();
 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -21,13 +25,16 @@ $q->execute(array($_POST['idProduto']));
 // Resultado do BD:
 $data = $q->fetch(PDO::FETCH_ASSOC);
 if ($data['idRespCadastro'] != $_SESSION['infosusuario']['idUsuario']) {
-    echo 'Este produto não te pertence';
-    Banco::desconectar();
+    http_response_code(200);
+    header('Content-Type: application/json; charset=utf-8');
+    $status["mensagem"] = "Este produto não te pertence!";
+    $status["status"] = 0;
+    echo json_encode($status);
     exit();
 } else {
     // Definir fuso horário:
     date_default_timezone_set('America/Sao_Paulo');
-    $codbarras = $_POST['codbarras'];
+    $codbarras = $_POST['idProduto'];
     $idproduto = $_POST['idProduto'];
     $nome = $_POST['nome'];
     $preco = $_POST['preco'];
@@ -41,7 +48,11 @@ if ($data['idRespCadastro'] != $_SESSION['infosusuario']['idUsuario']) {
     $q->execute(array($codbarras, $nome, $preco, $estoque, $idCategoria, $idproduto));
     Banco::desconectar();
     // Devolver o usuário para tela de administração:
-    header("Location: index.php?msg=2");
+    http_response_code(200);
+    header('Content-Type: application/json; charset=utf-8');
+    $status["mensagem"] = "Produto modificado com sucesso !";
+    $status["status"] = 1;
+    echo json_encode($status);
 }
 ?>
 
